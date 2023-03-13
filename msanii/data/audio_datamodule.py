@@ -3,8 +3,7 @@ from typing import Optional
 import lightning as L
 from torch.utils.data import DataLoader
 
-from .audio_dataset import AudioDataset
-
+from .audio_dataset import AudioDataset, ConditionedAudioDataset
 
 class AudioDataModule(L.LightningDataModule):
     def __init__(
@@ -33,7 +32,7 @@ class AudioDataModule(L.LightningDataModule):
         self.shuffle = shuffle
 
     def setup(self, stage: str = None) -> None:
-        self.dataset = AudioDataset(
+        self.dataset = ConditionedAudioDataset(
             self.data_dir,
             self.sample_rate,
             self.num_frames,

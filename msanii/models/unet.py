@@ -63,9 +63,10 @@ class UNet(ConfigMixin, nn.Module):
         )
         self.decoder_blocks = self.__make_decoder_blocks()
 
-    def forward(self, x: Tensor, timestep: Tensor) -> Tensor:
+    def forward(self, x: Tensor, timestep: Tensor, labels: Tensor) -> Tensor:
         x_embed = self.input_fn(x)
         timestep_embed = self.timestep_embedding(timestep)
+        print(x_embed.shape, labels.shape)
 
         x_hidden, enc_hiddens = self.__encode(x_embed, timestep_embed)
         x_hidden = self.middle_block(x_hidden, timestep_embed)

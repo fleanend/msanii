@@ -64,11 +64,11 @@ class LitDiffusion(LightningModule):
         self, batch: Union[Tensor, List[Tensor]], batch_idx: int
     ) -> Tensor:
         # Drop labels if present
-        if isinstance(batch, list):
-            batch = batch[0]
+        batch, labels = batch
 
         # Transform batch to mel spectrograms & add noise
         mel_spectrograms = self.transforms(batch)
+        
         noise = torch.randn_like(mel_spectrograms)
         timesteps = torch.randint(
             self.scheduler.num_train_timesteps,
@@ -80,7 +80,7 @@ class LitDiffusion(LightningModule):
             mel_spectrograms, noise, timesteps
         )
         # Predict added noise
-        pred_noise = self.unet(noisy_mel_spectrograms, timesteps)
+        pred_noise = self.unet(noisy_mel_spectrograms, timesteps, labels)
 
         # Compute & log reconstruction loss
         loss = self.loss_fn(pred_noise, noise)

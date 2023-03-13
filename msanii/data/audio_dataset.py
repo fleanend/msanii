@@ -6,6 +6,7 @@ import torchaudio
 from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import Dataset
+from essentia.standard import TensorflowPredictMusiCNN, TensorflowPredictVGGish
 
 
 class AudioDataset(Dataset):
@@ -71,3 +72,16 @@ class AudioDataset(Dataset):
         if self.normalize_amplitude:
             return x / x.abs().max()
         return x
+
+class ConditionedAudioDataset(AudioDataset):
+  def __init__(self,  *args, **kwargs):
+    self.conditioning_function = find_mood
+    super().__init__(*args, **kwargs)
+  def __getitem__(self, idx):
+    X = super().__getitem__(idx)
+    y = self.conditioning_function(X)
+    return X, y
+
+def find_mood(X):
+    y = TensorflowPredictMusiCNN(graphFilename='msd-musicnn-1.pb')(X.detach().numpy()[0])
+    return y
